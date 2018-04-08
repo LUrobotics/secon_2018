@@ -1,39 +1,180 @@
 /**********************************************************************************************
  * Motor Interface for the Lipscomb IEEE 2018 Robotics Project
- * This code runs on an Adafruit Trinket M0. It controlls two of the wheel motors via a MC33926 
- * Motor Driver Shield. The robot's main controller communicates with the Trinket via I2C. It provides
- * the Trinket with the motor ID and speed
+ * This code runs on an Adafruit Feather M0 Express. It controls two of the wheel motors via a 
+ * MC33926 Motor Driver Shield.
  * 
  * Helpful Links:
- *    Trinket  Guide:   https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/overview
+ *    Feather  Guide: https://learn.adafruit.com/adafruit-feather-m0-express-designed-for-circuit-python-circuitpython/overview
  *    Motor Controller: https://www.pololu.com/product/2503
  **********************************************************************************************/
-#include <Wire.h>
-//#include "DualMC33926MotorShield.h"
+
+#define MFL_DRIVE 10
+#define MFR_DRIVE 6
+#define MBL_DRIVE 11
+#define MBR_DRIVE 5
+#define MFL_DIR A0
+#define MFR_DIR A2
+#define MBL_DIR A1
+#define MBR_DIR A3
+#define FORWARD LOW
+#define BACKWARD HIGH
 
 void setup() {
-//  Wire.begin(4); // join i2c bus with address #4
-//  Wire.onReceive(IncomingRequest); // register i2c recieve event
-  pinMode(3, OUTPUT);
-  pinMode(1, OUTPUT);
-  digitalWrite(1, LOW);
-  analogWrite(3, 50); // 50% duty cycle
+  Serial.begin(9600);
+  MotorsInit();
+  pinMode(13,OUTPUT);
+  digitalWrite(13, HIGH);
+  delay(1000);
+  DiagonalBackwardLeft(70.0);
+  delay(1000);
+  DiagonalBackwardRight(70.0);
 }
 
 void loop() {
-  
-
 }
 
-void IncomingRequest(int howMany){
-  // howMany = the number of bytes being received
-  // Receive message & decode as JSON 
-//  while(1 < Wire.available()) // loop through all but the last
-//  {
-//    char c = Wire.read(); // receive byte as a character
-//    Serial.print(c);         // print the character
-//  }
-//  int x = Wire.read();    // receive byte as an integer
-//  Serial.println(x);         // print the integer
-
+void MotorsInit(){
+  pinMode(MFL_DRIVE, OUTPUT);
+  pinMode(MFR_DRIVE, OUTPUT);
+  pinMode(MBL_DRIVE, OUTPUT);
+  pinMode(MBR_DRIVE, OUTPUT);
+  pinMode(MFL_DIR, OUTPUT);
+  pinMode(MFR_DIR, OUTPUT);
+  pinMode(MBL_DIR, OUTPUT);
+  pinMode(MBR_DIR, OUTPUT);
 }
+
+void Stop(){
+  analogWrite(MFL_DRIVE, 0);
+  analogWrite(MFR_DRIVE, 0);
+  analogWrite(MBL_DRIVE, 0);
+  analogWrite(MBR_DRIVE, 0);
+  return;
+}
+
+void DriveForward(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, FORWARD);
+  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MBL_DIR, FORWARD);
+  digitalWrite(MBR_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void DriveBackward(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void StrafeRight(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, FORWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+
+void StrafeLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MBL_DIR, FORWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void TurnLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void TurnRight(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, FORWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, FORWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void DiagonalForwardRight(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, FORWARD);
+  digitalWrite(MBR_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, 0);
+  analogWrite(MBL_DRIVE, 0);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void DiagonalForwardLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MBL_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, 0);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, 0);
+}
+
+void DiagonalBackwardLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, 0);
+  analogWrite(MBL_DRIVE, 0);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void DiagonalBackwardRight(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, 0);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, 0);
+}
+
+
+void SquareDance(float speed){
+  DriveForward(speed);
+  delay(1500);
+  StrafeLeft(speed);
+  delay(1500);
+  DriveBackward(speed);
+  delay(1500);
+  StrafeRight(speed);
+  delay(1500);
+  Stop();
+}
+
