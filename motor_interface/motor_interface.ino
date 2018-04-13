@@ -7,174 +7,104 @@
  *    Feather  Guide: https://learn.adafruit.com/adafruit-feather-m0-express-designed-for-circuit-python-circuitpython/overview
  *    Motor Controller: https://www.pololu.com/product/2503
  **********************************************************************************************/
+#include "motor_interface.h"
+#include "Adafruit_VL6180X.h" // https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/wiring-and-test
+#include <Wire.h>
+#include <Adafruit_NeoPixel.h>
 
-#define MFL_DRIVE 10
-#define MFR_DRIVE 6
-#define MBL_DRIVE 11
-#define MBR_DRIVE 5
-#define MFL_DIR A0
-#define MFR_DIR A2
-#define MBL_DIR A1
-#define MBR_DIR A3
-#define FORWARD LOW
-#define BACKWARD HIGH
+#define TCAADDR1 0x71
+#define TCAADDR2 0x72
+#define TCAADDR3 0x73
+
+Adafruit_VL6180X shortRange = Adafruit_VL6180X();
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
+float data = 1000.0;
 
 void setup() {
   Serial.begin(9600);
   MotorsInit();
-  pinMode(13,OUTPUT);
-  digitalWrite(13, HIGH);
+  Wire.begin(); // join i2c bus as master
+  I2CSelect(2, 1);
+  shortRange.begin();
+  Serial.println("1");
+  
   delay(1000);
-  DiagonalBackwardLeft(70.0);
-  delay(1000);
-  DiagonalBackwardRight(70.0);
+  
+  DriveForward(30.0);
 }
 
 void loop() {
+  Serial.println("\nSensor 1");
+  I2CSelect(2,1);
+  data = ReadShort();
+  if(data < 100){
+    Stop();
+    Serial.println("Too close!");
+  }
+//  delay(50);
 }
 
-void MotorsInit(){
-  pinMode(MFL_DRIVE, OUTPUT);
-  pinMode(MFR_DRIVE, OUTPUT);
-  pinMode(MBL_DRIVE, OUTPUT);
-  pinMode(MBR_DRIVE, OUTPUT);
-  pinMode(MFL_DIR, OUTPUT);
-  pinMode(MFR_DIR, OUTPUT);
-  pinMode(MBL_DIR, OUTPUT);
-  pinMode(MBR_DIR, OUTPUT);
+void I2CSelect(int mux, int8_t i) {
+  if (i > 5) {
+    Serial.println("Returning from tacselect.");
+    return;
+  }
+  if(mux == 1){
+    Wire.beginTransmission(TCAADDR1);
+  }
+  else if(mux == 2){
+    Wire.beginTransmission(TCAADDR2);
+  }
+  else{
+    Wire.beginTransmission(TCAADDR3);
+  }
+
+  if(i == -1){
+    Wire.write(0);
+  }
+  else{
+    Wire.write(1 << i);
+  }
+  
+  Wire.endTransmission(); 
+  return; 
 }
 
-void Stop(){
-  analogWrite(MFL_DRIVE, 0);
-  analogWrite(MFR_DRIVE, 0);
-  analogWrite(MBL_DRIVE, 0);
-  analogWrite(MBR_DRIVE, 0);
-  return;
+float ReadShort(){
+  float lux = shortRange.readLux(VL6180X_ALS_GAIN_5);
+  uint8_t range = shortRange.readRange();
+  uint8_t status = shortRange.readRangeStatus();
+  if (status == VL6180X_ERROR_NONE) {
+    Serial.print("Range: "); Serial.println(range);
+    return range;
+  }
+
+  if  ((status >= VL6180X_ERROR_SYSERR_1) && (status <= VL6180X_ERROR_SYSERR_5)) {
+    Serial.println("System error");
+  }
+  else if (status == VL6180X_ERROR_ECEFAIL) {
+    Serial.println("ECE failure");
+  }
+  else if (status == VL6180X_ERROR_NOCONVERGE) {
+    Serial.println("No convergence");
+  }
+  else if (status == VL6180X_ERROR_RANGEIGNORE) {
+    Serial.println("Ignoring range");
+  }
+  else if (status == VL6180X_ERROR_SNR) {
+    Serial.println("Signal/Noise error");
+  }
+  else if (status == VL6180X_ERROR_RAWUFLOW) {
+    Serial.println("Raw reading underflow");
+  }
+  else if (status == VL6180X_ERROR_RAWOFLOW) {
+    Serial.println("Raw reading overflow");
+  }
+  else if (status == VL6180X_ERROR_RANGEUFLOW) {
+    Serial.println("Range reading underflow");
+  }
+  else if (status == VL6180X_ERROR_RANGEOFLOW) {
+    Serial.println("Range reading overflow");
+  }
+  return 9999;
 }
-
-void DriveForward(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, FORWARD);
-  digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void DriveBackward(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, BACKWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void StrafeRight(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-
-void StrafeLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, BACKWARD);
-  digitalWrite(MFR_DIR, FORWARD);
-  digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void TurnLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, BACKWARD);
-  digitalWrite(MFR_DIR, FORWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void TurnRight(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void DiagonalForwardRight(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, 0);
-  analogWrite(MBL_DRIVE, 0);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void DiagonalForwardLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFR_DIR, FORWARD);
-  digitalWrite(MBL_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, 0);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, 0);
-}
-
-void DiagonalBackwardLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, 0);
-  analogWrite(MBL_DRIVE, 0);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void DiagonalBackwardRight(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, 0);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, 0);
-}
-
-
-void SquareDance(float speed){
-  DriveForward(speed);
-  delay(1500);
-  StrafeLeft(speed);
-  delay(1500);
-  DriveBackward(speed);
-  delay(1500);
-  StrafeRight(speed);
-  delay(1500);
-  Stop();
-}
-

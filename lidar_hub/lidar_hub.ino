@@ -15,9 +15,9 @@
 #include "Adafruit_VL6180X.h" // https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/wiring-and-test
 #include <Wire.h>
 
-#define TCAADDR0 0x70
 #define TCAADDR1 0x71
 #define TCAADDR2 0x72
+#define TCAADDR3 0x73
 
 Adafruit_VL6180X shortRange = Adafruit_VL6180X();
 Adafruit_VL53L0X longRange = Adafruit_VL53L0X();
@@ -31,86 +31,78 @@ void setup() {
   Serial.println("Hello!");
   
   Wire.begin(); // join i2c bus as master
-  I2CSelect(0, -1);
   I2CSelect(1, -1);
   I2CSelect(2, -1);
-  
-  I2CSelect(0, 0);
+  I2CSelect(3, -1);
+
+//  I2CSelect(3, 0);
+//  shortRange.begin();
+//  Serial.println("0");
+  I2CSelect(2, 1);
   shortRange.begin();
-  I2CSelect(0, 1);
-  shortRange.begin();
-  I2CSelect(0, -1);
-  I2CSelect(1, 0);
-  longRange.begin();
-  I2CSelect(1, 1);
-  longRange.begin();
-  I2CSelect(1, -1);
-  I2CSelect(2, 0);
-  longRange.begin();
-  I2CSelect(2, 2);
-  shortRange.begin();
-  I2CSelect(2, 3);
-  shortRange.begin();
-  I2CSelect(2, -1);
+  Serial.println("1");
+//  I2CSelect(2, 2);
+//  shortRange.begin();
+//  Serial.println("2");
+//  I2CSelect(1, 3);
+//  longRange.begin();
+//  Serial.println("3");
+//  I2CSelect(1, 4);
+//  shortRange.begin();
+//  Serial.println("4");
+//  I2CSelect(1, 5);
+//  shortRange.begin();
+//  Serial.println("5");
 }
 
 void loop() {
   
-  Serial.println("\nSensor 0");
-  I2CSelect(0,0);
-  ReadShort();
-  delay(100);
-
+//  Serial.println("\nSensor 0");
+//  I2CSelect(1,0);
+//  ReadShort();
+//  delay(1000);
+//
   Serial.println("\nSensor 1");
-  I2CSelect(0,1);
+  I2CSelect(2,1);
   ReadShort();
-  delay(100);
+  delay(1000);
 
-  Serial.println("\nSensor 2");
-  I2CSelect(0,-1);
-  I2CSelect(1,0);
-  ReadLong();
-  delay(100);
-
-  Serial.println("\nSensor 3");
-  I2CSelect(1,1);
-  ReadLong();
-  delay(100);
-
-  Serial.println("\nSensor 4");
-  I2CSelect(1,-1);
-  I2CSelect(2,0);
-  ReadLong();
-  delay(100);
-
-  Serial.println("\nSensor 5");
-  I2CSelect(2,3);
-  ReadShort();
-  delay(100);
-
-  Serial.println("\nSensor 6");
-  I2CSelect(2,2);
-  ReadShort();
-  delay(100);
-  I2CSelect(2,-1);
+//  Serial.println("\nSensor 2");
+//  I2CSelect(1,2);
+//  ReadShort();
+//  delay(1000);
+//
+//  Serial.println("\nSensor 3");
+//  I2CSelect(1,3);
+//  ReadLong();
+//  delay(1000);
+//
+//  Serial.println("\nSensor 4");
+//  I2CSelect(1,4);
+//  ReadShort();
+//  delay(1000);
+//
+//  Serial.println("\nSensor 5");
+//  I2CSelect(1,5);
+//  ReadShort();
 
   delay(2000); 
 
 }
  
 void I2CSelect(int mux, int8_t i) {
-  if (i > 7) {
+  if (i > 5) {
     Serial.println("Returning from tacselect.");
     return;
   }
-  if(mux == 0){
-    Wire.beginTransmission(TCAADDR0);
-  }
-  else if(mux == 1){
+  if(mux == 1){
     Wire.beginTransmission(TCAADDR1);
   }
-  else{
+  else if(mux == 2){
     Wire.beginTransmission(TCAADDR2);
+  }
+  else{
+    Wire.beginTransmission(TCAADDR3);
   }
 
   if(i == -1){
