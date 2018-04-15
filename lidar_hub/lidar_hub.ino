@@ -38,21 +38,21 @@ void setup() {
 //  I2CSelect(3, 0);
 //  shortRange.begin();
 //  Serial.println("0");
-  I2CSelect(2, 1);
+//  I2CSelect(1, 1);
+//  shortRange.begin();
+//  Serial.println("1");
+  I2CSelect(1, 2);
   shortRange.begin();
-  Serial.println("1");
-//  I2CSelect(2, 2);
-//  shortRange.begin();
-//  Serial.println("2");
-//  I2CSelect(1, 3);
-//  longRange.begin();
-//  Serial.println("3");
-//  I2CSelect(1, 4);
-//  shortRange.begin();
-//  Serial.println("4");
-//  I2CSelect(1, 5);
-//  shortRange.begin();
-//  Serial.println("5");
+  Serial.println("2");
+  I2CSelect(1, 3);
+  longRange.begin();
+  Serial.println("3");
+  I2CSelect(1, 4);
+  shortRange.begin();
+  Serial.println("4");
+  I2CSelect(1, 5);
+  shortRange.begin();
+  Serial.println("5");
 }
 
 void loop() {
@@ -62,30 +62,29 @@ void loop() {
 //  ReadShort();
 //  delay(1000);
 //
-  Serial.println("\nSensor 1");
-  I2CSelect(2,1);
+//  Serial.println("\nSensor 1");
+//  I2CSelect(2,1);
+//  ReadShort();
+//  delay(1000);
+
+  Serial.println("\nSensor 2");
+  I2CSelect(1,2);
   ReadShort();
   delay(1000);
 
-//  Serial.println("\nSensor 2");
-//  I2CSelect(1,2);
-//  ReadShort();
-//  delay(1000);
-//
-//  Serial.println("\nSensor 3");
-//  I2CSelect(1,3);
-//  ReadLong();
-//  delay(1000);
-//
-//  Serial.println("\nSensor 4");
-//  I2CSelect(1,4);
-//  ReadShort();
-//  delay(1000);
-//
-//  Serial.println("\nSensor 5");
-//  I2CSelect(1,5);
-//  ReadShort();
+  Serial.println("\nSensor 3");
+  I2CSelect(1,3);
+  ReadLong();
+  delay(1000);
 
+  Serial.println("\nSensor 4");
+  I2CSelect(1,4);
+  ReadShort();
+  delay(1000);
+
+  Serial.println("\nSensor 5");
+  I2CSelect(1,5);
+  ReadShort();
   delay(2000); 
 
 }
