@@ -1,9 +1,3 @@
-/* YourDuino.com Example Software Sketch
-   Small Stepper Motor and Driver V1.5 06/21/17
-   http://www.yourduino.com/sunshop/index.php?l=product_detail&p=126
-   Shows 4-step sequence, Then 1/2 turn and back different speeds
-   terry@yourduino.com */
-
 /*-----( Import needed libraries )-----*/
 #include <Stepper.h>
 
@@ -17,9 +11,7 @@
 /*-----( Declare objects )-----*/
 // create an instance of the stepper class, specifying
 // the number of steps of the motor and the pins it's
-// attached to
-
-//The pin connections need to be pins 8,9,10,11 connected
+// attached to the pin connections need to be pins 8,9,10,11 connected
 // to Motor Driver In1, In2, In3, In4 
 
 // Then the pins are entered here in the sequence 1-3-2-4 for proper sequencing
@@ -36,20 +28,12 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 
 void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
 {
-  small_stepper.setSpeed(1);   // SLOWLY Show the 4 step sequence 
-  Steps2Take  =  4;  // Rotate CW
+  small_stepper.setSpeed(1000);   // SLOWLY Show the 4 step sequence 
+  Steps2Take  =  5.125*STEPS_PER_OUTPUT_REVOLUTION;  // Rotate CW
   small_stepper.step(Steps2Take);
-  delay(2000);
+  delay(10000);
 
-  Steps2Take  =  STEPS_PER_OUTPUT_REVOLUTION / 2;  // Rotate CW 1/2 turn
-  small_stepper.setSpeed(100);   
-  small_stepper.step(Steps2Take);
-  delay(1000);
-  
-  Steps2Take  =  - STEPS_PER_OUTPUT_REVOLUTION / 2;  // Rotate CCW 1/2 turn  
-  small_stepper.setSpeed(700);  // 700 a good max speed??
-  small_stepper.step(Steps2Take);
-  delay(2000);
+
 
 }/* --(end main loop )-- */
 
