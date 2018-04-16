@@ -14,20 +14,26 @@ void loop() {
   // motor ground connected to out2
   
   // moves arm forward / lowers arm
-  digitalWrite(FORWARDHIGH, HIGH);
-  digitalWrite(REVERSEHIGH, LOW);
-  delay(10000);
-  digitalWrite(FORWARDHIGH, LOW);
-  digitalWrite(REVERSEHIGH, LOW);
-  delay(5000);
+  armForward(2000);
 
   // moves arm back / lifts arm 
+  armReverse(2000);
+  
+}
+
+void armForward(int delayTime){
+  digitalWrite(FORWARDHIGH, HIGH);
+  digitalWrite(REVERSEHIGH, LOW);
+  delay(delayTime);
+  digitalWrite(FORWARDHIGH, LOW);
+//  digitalWrite(REVERSEHIGH, LOW);
+}
+
+void armReverse(int delayTime){
   digitalWrite(FORWARDHIGH, LOW);
   digitalWrite(REVERSEHIGH, HIGH);
-  delay(10000);
-  digitalWrite(FORWARDHIGH, LOW);
+  delay(delayTime);
+//  digitalWrite(FORWARDHIGH, LOW);
   digitalWrite(REVERSEHIGH, LOW);
-  delay(5000);
-  
 }
 
