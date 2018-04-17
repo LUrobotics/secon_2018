@@ -10,14 +10,14 @@
 #include "motor_interface.h"
 #include "Adafruit_VL6180X.h" // https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/wiring-and-test
 #include <Wire.h>
-#include <Adafruit_NeoPixel.h>
+//#include <Adafruit_NeoPixel.h>
 
 #define TCAADDR1 0x71
 #define TCAADDR2 0x72
 #define TCAADDR3 0x73
 
 Adafruit_VL6180X shortRange = Adafruit_VL6180X();
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
+//Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, 8, NEO_GRB + NEO_KHZ800);
 float data = 1000.0;
 
 void setup() {

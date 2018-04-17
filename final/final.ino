@@ -69,6 +69,11 @@ void loop() {
   calibrationSignal = false;
   readIRSensor();
 
+  matrix.blinkRate(0);
+  matrix.drawColon(false);
+  matrix.writeDigitNum(4, 0, false);
+  matrix.writeDisplay();
+
   // perform every 50 ms
 //  if(!is50ms()) {
 //    return;
@@ -382,7 +387,9 @@ void readIRSensor() {
 void killFunction() {
   //stop moving
   //stop motors
-  Serial.println("Kill button pressed"); 
+  Serial.println("Kill button pressed");
+  matrix.writeDigitNum(4, 1, false);
+  matrix.writeDisplay();
   // do nothing forever 
   while(1);
 }
