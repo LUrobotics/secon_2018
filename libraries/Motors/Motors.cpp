@@ -17,14 +17,14 @@
 #include "Arduino.h"
 #include "Motors.h"
 
-#define MFL_DRIVE 13
-#define MFR_DRIVE 12
-#define MBL_DRIVE 11
-#define MBR_DRIVE 10
-#define MFL_DIR A0
-#define MFR_DIR A1
-#define MBL_DIR A2
-#define MBR_DIR A3
+#define MFL_DRIVE 12
+#define MFR_DRIVE 10
+#define MBL_DRIVE 13
+#define MBR_DRIVE 11
+#define MFL_DIR A1
+#define MFR_DIR A3
+#define MBL_DIR A0
+#define MBR_DIR A2
 #define FORWARD LOW
 #define BACKWARD HIGH
 
@@ -50,9 +50,9 @@ void Motors::Stop(){
 void Motors::DriveForward(float speed){
   int pulseWidth = 255*(speed/100);
   digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
   digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, FORWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
   analogWrite(MFL_DRIVE, pulseWidth);
   analogWrite(MFR_DRIVE, pulseWidth);
   analogWrite(MBL_DRIVE, pulseWidth);
@@ -62,43 +62,6 @@ void Motors::DriveForward(float speed){
 void Motors::DriveBackward(float speed){
   int pulseWidth = 255*(speed/100);
   digitalWrite(MFL_DIR, BACKWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void Motors::StrafeRight(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, BACKWARD);
-  digitalWrite(MBR_DIR, FORWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-
-void Motors::StrafeLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
-  digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
-  analogWrite(MFL_DRIVE, pulseWidth);
-  analogWrite(MFR_DRIVE, pulseWidth);
-  analogWrite(MBL_DRIVE, pulseWidth);
-  analogWrite(MBR_DRIVE, pulseWidth);
-}
-
-void Motors::TurnLeft(float speed){
-  int pulseWidth = 255*(speed/100);
-  digitalWrite(MFL_DIR, BACKWARD);
   digitalWrite(MFR_DIR, FORWARD);
   digitalWrite(MBL_DIR, BACKWARD);
   digitalWrite(MBR_DIR, FORWARD);
@@ -108,12 +71,49 @@ void Motors::TurnLeft(float speed){
   analogWrite(MBR_DRIVE, pulseWidth);
 }
 
+void Motors::StrafeLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, FORWARD);
+  digitalWrite(MFR_DIR, FORWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+
+void Motors::StrafeRight(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, FORWARD);
+  digitalWrite(MBR_DIR, FORWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
+void Motors::TurnLeft(float speed){
+  int pulseWidth = 255*(speed/100);
+  digitalWrite(MFL_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MBL_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, BACKWARD);
+  analogWrite(MFL_DRIVE, pulseWidth);
+  analogWrite(MFR_DRIVE, pulseWidth);
+  analogWrite(MBL_DRIVE, pulseWidth);
+  analogWrite(MBR_DRIVE, pulseWidth);
+}
+
 void Motors::TurnRight(float speed){
   int pulseWidth = 255*(speed/100);
   digitalWrite(MFL_DIR, FORWARD);
-  digitalWrite(MFR_DIR, BACKWARD);
+  digitalWrite(MFR_DIR, FORWARD);
   digitalWrite(MBL_DIR, FORWARD);
-  digitalWrite(MBR_DIR, BACKWARD);
+  digitalWrite(MBR_DIR, FORWARD);
   analogWrite(MFL_DRIVE, pulseWidth);
   analogWrite(MFR_DRIVE, pulseWidth);
   analogWrite(MBL_DRIVE, pulseWidth);

@@ -33,13 +33,13 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 
 void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
 {
-  if(digitalRead(INTERRUPT) == false && hasWheelTurned == true){
+//  if(digitalRead(INTERRUPT) == false && hasWheelTurned == true){
     small_stepper.setSpeed(1000);   // SLOWLY Show the 4 step sequence 
     Steps2Take  =  5.125*STEPS_PER_OUTPUT_REVOLUTION;  // Rotate CW
     small_stepper.step(Steps2Take);
-  }
+//  }
 
-  delay(10);
+  delay(10000);
   
 }/* --(end main loop )-- */
 
