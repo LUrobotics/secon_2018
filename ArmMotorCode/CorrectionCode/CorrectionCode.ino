@@ -11,36 +11,21 @@ void setup() {
   pinMode(INTERRUPT, INPUT);
   pinMode(SWITCH, INPUT);
   digitalWrite(SWITCH, HIGH);
-
-  Serial.begin(9600);
-  while(!Serial);
-  Serial.println("Code started");
+//
+//  Serial.begin(9600);
+//  while(!Serial);
+//  Serial.println("Code started");
   
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
-  // motor power connected to out1
-  // motor ground connected to out2
-//  while(digitalRead(SWITCH) != LOW){
-//    armReverse(50);
-//  }
-  // check to see if time to move the arm
-//  if (digitalRead(INTERRUPT) == LOW && hasArmMoved == false){
-  // moves arm forward / lowers arm
-  if(digitalRead(SWITCH) == LOW){
-    Serial.println("Switch Pressed");
-//    armForward(100);
-  }
-//  armForward(100);
 
-  // moves arm back / lifts arm 
-//  armReverse(500);
-//  hasArmMoved = true;
-//  }
+  armReverse(10);
 
-//  delay(20000); // keep trinket from resetting
+
+  delay(10000); // keep trinket from resetting
   
 }
 
