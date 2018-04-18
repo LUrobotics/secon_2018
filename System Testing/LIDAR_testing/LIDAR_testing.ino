@@ -1,16 +1,3 @@
-/**********************************************************************************************
- * LIDAR Hub code for the Lipscomb IEEE 2018 Robotics Project
- * This code runs on an Adafruit Trinket M0. It monitors several Adafruit VL53L0X and VL6180X
- * LIDAR sensors over I2C. All VL53L0X and VL6180X have I2C address 0x29, so two (three?) Adafruit 
- * TCA9548A 1-to-8 I2C Multiplexer Breakout boards are used to communicate with all of them.
- * 
- * Helpful Links:
- *    Trinket  Guide: https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/overview
- *    VL53L0X  Guide: https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/overview
- *    VL6180X  Guide: https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/overview
- *    TCA9548A Guide: https://learn.adafruit.com/adafruit-tca9548a-1-to-8-i2c-multiplexer-breakout?view=all
- * 
- **********************************************************************************************/
 #include "Adafruit_VL53L0X.h" // https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/arduino-code
 #include "Adafruit_VL6180X.h" // https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/wiring-and-test
 #include <Wire.h>
@@ -35,60 +22,152 @@ void setup() {
   I2CSelect(2, -1);
   I2CSelect(3, -1);
 
-//  I2CSelect(3, 0);
-//  shortRange.begin();
-//  Serial.println("0");
-//  I2CSelect(1, 1);
-//  shortRange.begin();
-//  Serial.println("1");
-//  I2CSelect(1, 2);
-//  shortRange.begin();
-//  Serial.println("2");
-  I2CSelect(3, 3);
+  Serial.println("BOARD 1");
+  I2CSelect(1, 0);
+  shortRange.begin();
+  Serial.println("0");
+  I2CSelect(1, 1);
+  shortRange.begin();
+  Serial.println("1");
+  I2CSelect(1, 2);
+  longRange.begin();
+  Serial.println("2");
+  I2CSelect(1, 3);
+  longRange.begin();
+  Serial.println("3");
+  I2CSelect(1, 4);
+  longRange.begin();
+  Serial.println("4");
+  I2CSelect(1, 5);
+  longRange.begin();
+  Serial.println("5");
+  I2CSelect(1, -1);
+
+  Serial.println("BOARD 2");
+  I2CSelect(2, 0);
+  longRange.begin();
+  Serial.println("0");
+  I2CSelect(2, 1);
+  shortRange.begin();
+  Serial.println("1");
+  I2CSelect(2, 2);
+  shortRange.begin();
+  Serial.println("2");
+  I2CSelect(2, 3);
   shortRange.begin();
   Serial.println("3");
-//  I2CSelect(1, 4);
+  I2CSelect(2, 4);
+  longRange.begin();
+  Serial.println("4");
+  I2CSelect(2, 5);
+  longRange.begin();
+  Serial.println("5");
+  I2CSelect(2, -1);
+
+  Serial.println("BOARD 3");
+  I2CSelect(3, 0);
+  longRange.begin();
+  Serial.println("0");
+  I2CSelect(3, 1);
+  longRange.begin();
+  Serial.println("1");
+//  I2CSelect(3, 2);
+//  shortRange.begin();
+//  Serial.println("2");
+//  I2CSelect(3, 3);
+//  shortRange.begin();
+//  Serial.println("3");
+//  I2CSelect(3, 4);
 //  shortRange.begin();
 //  Serial.println("4");
-//  I2CSelect(1, 5);
+//  I2CSelect(3, 5);
 //  shortRange.begin();
 //  Serial.println("5");
+  I2CSelect(3, -1);
+
 }
 
 void loop() {
+  Serial.println("BOARD 1");
+  Serial.println("\nSensor 0");
+  I2CSelect(1,0);
+  ReadShort();
+  delay(1000);
+
+  Serial.println("\nSensor 1");
+  I2CSelect(1,1);
+  ReadShort();
+  delay(1000);
+
+  Serial.println("\nSensor 2");
+  I2CSelect(1,2);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 3");
+  I2CSelect(1,3);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 4");
+  I2CSelect(1,4);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 5");
+  I2CSelect(1,5);
+  ReadLong();
+  I2CSelect(1,-1);
+  delay(2000); 
+
   
-//  Serial.println("\nSensor 0");
-//  I2CSelect(1,0);
-//  ReadShort();
-//  delay(1000);
-//
-//  Serial.println("\nSensor 1");
-//  I2CSelect(2,1);
-//  ReadShort();
-//  delay(1000);
+
+  Serial.println("\n\nBOARD 2");
+  Serial.println("\nSensor 0");
+  I2CSelect(2,0);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 1");
+  I2CSelect(2,1);
+  ReadShort();
+  delay(1000);
 
 //  Serial.println("\nSensor 2");
-//  I2CSelect(1,2);
+//  I2CSelect(2,2);
 //  ReadShort();
 //  delay(1000);
 
   Serial.println("\nSensor 3");
-  I2CSelect(3,3);
+  I2CSelect(2,3);
   ReadShort();
   delay(1000);
-//
-//  Serial.println("\nSensor 4");
-//  I2CSelect(1,4);
-//  ReadShort();
-//  delay(1000);
-//
-//  Serial.println("\nSensor 5");
-//  I2CSelect(1,5);
-//  ReadShort();
-//  delay(2000); 
+
+  Serial.println("\nSensor 4");
+  I2CSelect(2,4);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 5");
+  I2CSelect(2,5);
+  ReadLong();
+  I2CSelect(2,-1);
+  delay(2000); 
+
+  Serial.println("\n\nBOARD 3");
+  Serial.println("\nSensor 0");
+  I2CSelect(3,0);
+  ReadLong();
+  delay(1000);
+
+  Serial.println("\nSensor 1");
+  I2CSelect(3,1);
+  ReadLong();
+  I2CSelect(3,-1);
+  delay(2000);
 
 }
- 
+
 void I2CSelect(int mux, int8_t i) {
   if (i > 5) {
     Serial.println("Returning from tacselect.");

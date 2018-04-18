@@ -15,6 +15,7 @@
 
 class Motors{
   public:
+    Motors();
     void Stop();
     void DriveForward(float speed);
     void DriveBackward(float speed);
