@@ -4,78 +4,11 @@
 
 Adafruit_VL6180X shortRange = Adafruit_VL6180X();
 Adafruit_VL53L0X longRange = Adafruit_VL53L0X();
+int TCAADDR1 = 0x71;
+int TCAADDR2 = 0x72;
+int TCAADDR3 = 0x73;
+    
 
-void muxInit(int mux){
-  Serial.print("BOARD ");
-  Serial.println(mux);
-  I2CSelect(mux, 0);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("0 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("0 - long");
-  }
-  else{
-    Serial.println("0 - SUCKS");
-  }
-  I2CSelect(mux, 1);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("1 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("1 - long");
-  }
-  else{
-    Serial.println("1 - SUCKS");
-  }
-  I2CSelect(mux, 2);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("2 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("2 - long");
-  }
-  else{
-    Serial.println("2 - SUCKS");
-  }
-  I2CSelect(mux, 3);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("3 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("3 - long");
-  }
-  else{
-    Serial.println("3 - SUCKS");
-  }
-  I2CSelect(mux, 4);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("4 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("4 - long");
-  }
-  else{
-    Serial.println("4 - SUCKS");
-  }
-  I2CSelect(mux, 5);
-//  Serial.println("Trying...");
-  if(shortRange.begin()){
-    Serial.println("5 - short");
-  }
-  else if(longRange.begin()){
-    Serial.println("5 - long");
-  }
-  else{
-    Serial.println("5 - SUCKS");
-  }
-  I2CSelect(mux, -1);
-}
 
 bool I2CSelect(int mux, int8_t sensorNum){
   if (sensorNum > 5) return false;
@@ -154,4 +87,76 @@ float ReadLong(){
   }
 
   return measure.RangeMilliMeter;
+}
+
+void muxInit(int mux){
+  Serial.print("BOARD ");
+  Serial.println(mux);
+  I2CSelect(mux, 0);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("0 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("0 - long");
+  }
+  else{
+    Serial.println("0 - SUCKS");
+  }
+  I2CSelect(mux, 1);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("1 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("1 - long");
+  }
+  else{
+    Serial.println("1 - SUCKS");
+  }
+  I2CSelect(mux, 2);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("2 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("2 - long");
+  }
+  else{
+    Serial.println("2 - SUCKS");
+  }
+  I2CSelect(mux, 3);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("3 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("3 - long");
+  }
+  else{
+    Serial.println("3 - SUCKS");
+  }
+  I2CSelect(mux, 4);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("4 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("4 - long");
+  }
+  else{
+    Serial.println("4 - SUCKS");
+  }
+  I2CSelect(mux, 5);
+//  Serial.println("Trying...");
+  if(shortRange.begin()){
+    Serial.println("5 - short");
+  }
+  else if(longRange.begin()){
+    Serial.println("5 - long");
+  }
+  else{
+    Serial.println("5 - SUCKS");
+  }
+  I2CSelect(mux, -1);
 }
