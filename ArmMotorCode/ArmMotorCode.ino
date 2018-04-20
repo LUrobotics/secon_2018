@@ -5,32 +5,27 @@
 
 bool hasArmMoved = false;
 void setup() {
-  // put your setup code here, to run once:
+  delay(15000);
   pinMode(FORWARDHIGH, OUTPUT);
   pinMode(REVERSEHIGH, OUTPUT);
   pinMode(INTERRUPT, INPUT);
-  digitalWrite(INTERRUPT, HIGH);
-delay(3000);
+  while(digitalRead(INTERRUPT) != HIGH); // do nothing until feather tells me to do my thing
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
+void loop() 
+{
   // motor power connected to out1
   // motor ground connected to out2
-      if(digitalRead(INTERRUPT) == LOW && hasArmMoved == false){
+      if(hasArmMoved == false)
+      {
+        pinMode(INTERRUPT, OUTPUT); // so it can tell feather I'm done
         armForward(2000);
         delay(500);
         armReverse(2100);
         hasArmMoved = true;
+        digitalWrite(INTERRUPT, LOW); // tell feather that I'm done
        }
-      delay(10);
-
-//      armForward(1500);
-//      delay(2000);
-//      armReverse(1500);
-//      delay(20000); // keep trinket from resetting
-  
+      delay(1000);
 }
 
 void armForward(int delayTime){

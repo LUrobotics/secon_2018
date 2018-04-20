@@ -30,19 +30,22 @@ void setup()   /*----( SETUP: RUNS ONCE )----*/
 // Nothing  (Stepper Library sets pins as outputs)
   delay(15000);
   pinMode(INTERRUPT, INPUT);
-  digitalWrite(INTERRUPT, HIGH);
+  while(digitalRead(INTERRUPT) != HIGH); // do nothing until feather tells me to do my thing
 }/*--(end setup )---*/
 
 void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
 {
-  if(digitalRead(INTERRUPT) == LOW && hasWheelTurned == false){
+  if(hasWheelTurned == false)
+  {
+    pinMode(INTERRUPT, OUTPUT); // so I can talk back to feather
     small_stepper.setSpeed(1000);   // SLOWLY Show the 4 step sequence 
     Steps2Take  =  5*STEPS_PER_OUTPUT_REVOLUTION;  // Rotate CW
     small_stepper.step(Steps2Take);
     hasWheelTurned = true;
+    digitalWrite(INTERRUPT, LOW); // tell feather that I'm done
   }
 
-//  delay(10000);
+  delay(1000);
   
 }/* --(end main loop )-- */
 
