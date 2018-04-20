@@ -2,21 +2,21 @@
  * Robotics Final Integration Code
  */
  
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include "Adafruit_LEDBackpack.h"
-#include <Motors.h>
-#include "final_Adam.h"
-
-#define tooClose    1
-#define tooFar      2
-#define good        0
-#define tooCounter  1
-#define tooClock    2
-#define tooLeft     1 
-#define tooRight    2
-
-#define testSpeed   30
+//#include <Wire.h>
+//#include <Adafruit_GFX.h>
+//#include "Adafruit_LEDBackpack.h"
+//#include <Motors.h>
+//#include "final_Adam.h"
+//
+//#define tooClose    1
+//#define tooFar      2
+//#define good        0
+//#define tooCounter  1
+//#define tooClock    2
+//#define tooLeft     1 
+//#define tooRight    2
+//
+//#define testSpeed   30
 
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
