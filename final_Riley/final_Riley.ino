@@ -66,6 +66,8 @@ void loop() {
     // receive calibration IR signal
     readIRSensor();
   }
+
+  startProgram = false;
   
   /* ENTER PROGRAM */
 
