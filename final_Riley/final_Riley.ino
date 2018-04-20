@@ -10,6 +10,9 @@
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
 
+/* TREASURE MAP ARRAY */
+int treasureMap[] = {-1, -1, -1};
+
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
 const int startButton = A5;
