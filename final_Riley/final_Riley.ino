@@ -28,6 +28,7 @@ IRdecode myDecoder;
 IRrecvLoop myReceiver(irRecvPin);
 int sevSegDisplayNumber = 0;
 bool calibrationSignal = true;
+bool programComplete = false;
 Adafruit_7segment matrix = Adafruit_7segment();
 
 void setup() {
@@ -67,7 +68,7 @@ void loop() {
     readIRSensor();
   }
 
-  startProgram = false;
+  startProgram = false; // reset so that program only iterates once
   
   /* ENTER PROGRAM */
 
@@ -82,11 +83,12 @@ void loop() {
   // Riley
   calibrationSignal = false;
   readIRSensor();
+  programComplete = true; 
 }
 
 void readIRSensor() {
   unsigned long irCode;
-  if (myReceiver.getResults()) {
+  if (myReceiver.getResults() && !programComplete) {
     myDecoder.decode();
     irCode = myDecoder.value;
     Serial.println(irCode, HEX);
