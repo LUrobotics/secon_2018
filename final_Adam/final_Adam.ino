@@ -1,22 +1,32 @@
+
+
 /*
  * Robotics Final Integration Code
  */
  
-//#include <Wire.h>
-//#include <Adafruit_GFX.h>
-//#include "Adafruit_LEDBackpack.h"
-//#include <Motors.h>
-//#include "final_Adam.h"
-//
-//#define tooClose    1
-//#define tooFar      2
-//#define good        0
-//#define tooCounter  1
-//#define tooClock    2
-//#define tooLeft     1 
-//#define tooRight    2
-//
-//#define testSpeed   30
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
+#include "Motors.h"
+#include "final_Adam.h"
+
+#define tooClose    1
+#define tooFar      2
+#define good        0
+#define tooCounter  1
+#define tooClock    2
+#define tooLeft     1 
+#define tooRight    2
+
+#define testSpeed     70
+#define ACTime        3000
+#define RampTime      5300
+#define BTime         2600
+#define Adjust        500
+#define BackWallTime  3000
+#define Backward      1000
+#define ChestTime     1500
+#define RampTime      7000
 
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
@@ -43,25 +53,25 @@ double filter4[] = {0.0, 0.0, 0.0};
 
 
 void setup() {
-  Serial.begin(9600);
-  //while(!Serial);
-  Serial.println("Waiting to start");
+//  Serial.begin(9600);
+//  //while(!Serial);
+//  Serial.println("Waiting to start");
   // initialize start and kill buttons
   pinMode(killButton, INPUT_PULLUP); // pin = HIGH when switch open and LOW when switch is pressed
   pinMode(startButton, INPUT_PULLUP);
   // kill button interrupt
   attachInterrupt(digitalPinToInterrupt(killButton), killFunction, FALLING);
 
-  // I2C setup for 7-segment display
-  matrix.begin(0x70);
-  // blink colon on 7-segment display until signal received
-  matrix.blinkRate(2);
-  matrix.drawColon(true);
-  matrix.writeDisplay();
-
-  muxInit(1);
-  muxInit(2);
-  muxInit(3);
+//  // I2C setup for 7-segment display
+//  matrix.begin(0x70);
+//  // blink colon on 7-segment display until signal received
+//  matrix.blinkRate(2);
+//  matrix.drawColon(true);
+//  matrix.writeDisplay();
+//
+//  muxInit(1);
+//  muxInit(2);
+//  muxInit(3);
 }
 
 void loop() {
@@ -84,80 +94,87 @@ void loop() {
   treasureMap[0] = 0;
   treasureMap[1] = 0;
   treasureMap[2] = 0;
+  if(treasureMap[0] == 1){
+  oscar.StrafeLeft(testSpeed);
+  delay(ACTime);
+  oscar.Stop();
+  delay(100);
+  oscar.StrafeRight(testSpeed);
+  delay(ACTime-200);
+  oscar.Stop();
+  }
+  else{
+  oscar.StrafeRight(testSpeed);
+  delay(ACTime);
+  oscar.Stop();
+  delay(100);
+  oscar.StrafeLeft(testSpeed);
+  delay(ACTime-200);
+  oscar.Stop();
+  }
+  delay(100);
+  oscar.DriveBackward(testSpeed);
+  delay(Backward);
+  oscar.Stop();
+  delay(100);
+  oscar.DriveForward(testSpeed);
+  delay(RampTime);
+  oscar.Stop();
+  delay(100);
+  if(treasureMap[1] == 1){
+  oscar.StrafeLeft(testSpeed);
+  delay(BTime);
+  oscar.Stop();
+  delay(100);
+  oscar.StrafeRight(testSpeed);
+  delay(BAdjust);
+  oscar.Stop();
+  }
+  else{
+  oscar.StrafeRight(testSpeed);
+  delay(BTime);
+  oscar.Stop();
+  delay(100);
+  oscar.StrafeLeft(testSpeed);
+  delay(Adjust);
+  oscar.Stop();
+  }
+  delay(100);
+  oscar.DriveForward(testSpeed);
+  delay(RampTime);
+  oscar.Stop();
+  delay(100);
 
-  phase = 1;
-//  oscar.StrafeLeft(testSpeed);
-//  delay(5000);
-//  oscar.StrafeRight(testSpeed);
-//  delay(5000);
-//  oscar.DriveForward(testSpeed);
-//  delay(5000);
-//  oscar.Stop();
-//  while(1);
-//  oscar.TurnRight(testSpeed); // clockwise
-//  oscar.TurnLeft(testSpeed);  // counter
 
- 
-  while(true) {
-    if(phase == 1) {
-      toDestinationA();
-    } else if(phase == 2) {
-      centerOnRamp();
-    } else if(phase == 3) {
-      downRampBlind();
-    } else if(phase == 4) {
-      seeChest();
-    } else if(phase == 5) {
-      toPressureWall();
-    } else if(phase == 6) {
-      seePressurePlate();
-    }
+  delay(7000);
 
-    // FIXME: lazy 
-    delay(10);
+  oscar.DriveBackward(ChestTime);
+  delay(2000);
+  oscar.Stop();
+  delay(5000);
+  oscar.DriveBackward(RampTime);
+  delay(7000);
+  oscar.Stop();
+  oscar.DriveForward(Adjust);
+  oscar.Stop();
+  
+  if(treasureMap[2] == 1){
+  oscar.StrafeLeft(testSpeed);
+  delay(ACTime);
+  oscar.Stop();
+  }
+  else{
+  oscar.StrafeRight(testSpeed);
+  delay(ACTime);
+  oscar.Stop();
   }
 
-//  if(phase == 1) {
-//    toDestinationA();
-//  } else if(phase == 2) {
-//    centerOnRamp();
-//  } else if(phase == 3) {
-//    downRamp();
-//  } else if(phase == 4) {
-//    toDestinationBWall();
-//  } else if(phase == 5) {
-//    // driving over destination B in the process
-//    toFlagWall();
-//  } else if(phase == 6) {
-//    centerOnFlag();
-//  } else if(phase == 7) {
-//    turnAround();
-//  } else if(phase == 8) {
-//    centerOnChest();
-//  } else if(phase == 9) {
-//    atopChest();
-//  } else if(phase == 10) {
-//    pickUpChest();
-//  } else if(phase == 11) {
-//    centerOnRamp2();
-//  } else if(phase == 12) {
-//    upRamp();
-//  } else if(phase == 13) {
-//    toDestinationA2();
-//  } else {
-//    // localization backup routine?
-//    // just do not be here
-//  }
+
+  
+  while(1);
+  delay(10);
 }
 
-void toDestinationA() {
-
-
-//  // Reid's
-//  if(isButtonPressed()) {
-//    phase++;
-//    return;
-//  }
   
   // read back short sensors
   I2CSelect(1,0);
