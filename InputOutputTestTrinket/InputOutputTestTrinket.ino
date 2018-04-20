@@ -5,7 +5,7 @@ void setup() {
   // put your setup code here, to run once:
   pinMode(IOPIN, INPUT);
   delay(1000);
-  while(digitalRead(IOPIN) != LOW);
+  while(digitalRead(IOPIN) != HIGH);
 }
 
 void loop() {

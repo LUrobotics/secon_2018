@@ -4,9 +4,9 @@
 void setup() {
   // put your setup code here, to run once:
   pinMode(IOPIN, OUTPUT);
-  digitalWrite(IOPIN, HIGH);
-  delay(5000);
   digitalWrite(IOPIN, LOW);
+  delay(5000);
+  digitalWrite(IOPIN, HIGH);
   pinMode(IOPIN, INPUT);
 }
 
