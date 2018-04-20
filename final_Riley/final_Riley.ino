@@ -70,10 +70,10 @@ void setup() {
   matrix.writeDisplay();
   // make captain's wheel pin an output
   pinMode(capWheelTrinket, OUTPUT);
-  digitalWrite(capWheelTrinket, HIGH);
+  digitalWrite(capWheelTrinket, LOW); // set it low just to be sure
   // make arm pin an output 
   pinMode(armTrinket, OUTPUT);
-  digitalWrite(armTrinket, HIGH);
+  digitalWrite(armTrinket, LOW); // set it low just to be sure
 }
 
 void loop() {
@@ -84,8 +84,14 @@ void loop() {
   }
   
   /* ENTER PROGRAM */
-  //digitalWrite(capWheelTrinket, LOW); // DO THIS TO MAKE WHEEL TURN
-  //digitalWrite(armTrinket, LOW); // DO THIS TO MAKE ARM MOVE
+
+  /* TEST FOR COMMUNICATING WITH TRINKETS */
+  //digitalWrite(capWheelTrinket, HIGH); // DO THIS TO MAKE WHEEL TURN
+  //pinMode(capWheelTrinket, INPUT); // so trinket can tell feather when it's done
+  //while(digitalRead(capWheelTrinket) == HIGH) {;} // do nothing while captain's wheel does its thing
+  //digitalWrite(armTrinket, HIGH); // DO THIS TO MAKE ARM MOVE
+  //pinMode(armTrinket, INPUT); // so trinket can tell feather when it's done
+  //while(digitalRead(armTrinket) == HIGH) {;} // do nothing while arm does its thing
   
   // Riley
   calibrationSignal = false;
