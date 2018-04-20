@@ -20,15 +20,15 @@
 
 #define testSpeed     70
 #define ACTime        3000
-#define RampTime      1000 //5300
+#define RampTime      5000
 
 
-#define BTime         2600
+#define BTime         2500
 #define Adjust        500
-#define BackWallTime  3000
+#define BackWallTime  5000
 #define Backward      1000
 #define ChestTime     1500
-#define RampTime      7000
+#define BackRampTime  9000
 
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
@@ -102,12 +102,14 @@ void loop() {
 //  }
 
   treasureMap[0] = 1;
-  treasureMap[1] = 0;
-  treasureMap[2] = 1;
+  treasureMap[1] = 1;
+  treasureMap[2] = 0;
   
 
   // END WALL PRACTICE
-  
+
+
+  //Destination A and recenter
   if(treasureMap[0] == 1){
     oscar.StrafeLeft(testSpeed);
     delay(ACTime);
@@ -126,17 +128,20 @@ void loop() {
     delay(ACTime-200);
     oscar.Stop();
   }
+
+  // center on ramp
   delay(100);
   oscar.DriveBackward(testSpeed);
   delay(Backward);
   oscar.Stop();
   delay(100);
+  // drive down ramp
   oscar.DriveForward(testSpeed);
   delay(RampTime);
   oscar.Stop();
   delay(100);
 
-  
+  // Destination B
   if(treasureMap[1] == 1){
     oscar.StrafeLeft(testSpeed);
     delay(BTime);
@@ -155,91 +160,66 @@ void loop() {
     delay(Adjust);
     oscar.Stop();
   }
-  
+
+  // drive to captains wheel wall
   delay(100);
   oscar.DriveForward(testSpeed);
-  delay(RampTime);
+  delay(BackWallTime);
   oscar.Stop();
   delay(100);
-
-
-  //delay(7000);
-
-
-
-
-// WHEEL TURN
-bool wallFound = false;
-  while(!wallFound) {
-    // read back short sensors
-    if(treasureMap[1] == 1) {
-      oscar.StrafeRight(testSpeed);
-    } else {
-      oscar.StrafeLeft(testSpeed);
-    }
-    I2CSelect(1,1);
-    double mastRead = ReadShort(); 
-    I2CSelect(1,-1);
-    if(mastRead < 200) {
-      wallFound = true;
-    }
-    delay(1);
-  }
+  oscar.DriveBackward(testSpeed);
+  delay(250);
+  oscar.Stop();
 
   // centering on wheel
   if(treasureMap[1] == 1) {
-      oscar.StrafeRight(testSpeed);
-      delay(980);
-  } else {
       oscar.StrafeLeft(testSpeed);
-      delay(720);
-  }
+      delay(1500);
+      oscar.StrafeRight(testSpeed);
+      delay(ACTime-100);
+  } else {
+      oscar.StrafeRight(testSpeed);
+      delay(1500);
+      oscar.StrafeLeft(testSpeed);
+      delay(ACTime-100);
+      }
   oscar.Stop();
   delay(100);
   oscar.DriveForward(testSpeed);
-  delay(500);
+  delay(400);
   oscar.Stop();
-  delay(100);
+  delay(5000);
 
-  /*
-   * TURN WHEEL HERE RILEY
-   * 
-   */
-  digitalWrite(capWheelTrinket, HIGH);
-  delay(100);
-  pinMode(capWheelTrinket, INPUT);
-  delay(100);
-  while(digitalRead(capWheelTrinket) == HIGH);
-
-   
-   
-  //oscar.DriveBackward(testSpeed);
-  //delay(8000);
+//  turn the wheel
+//  digitalWrite(capWheelTrinket, HIGH);
+//  delay(100);
+//  pinMode(capWheelTrinket, INPUT);
+//  delay(100);
+//  while(digitalRead(capWheelTrinket) == HIGH);
 
 // END WHEEL TURN
 
-
-  
-
-  oscar.DriveBackward(ChestTime);
-  delay(2000);
+  // drive to chest
+  oscar.DriveBackward(testSpeed);
+  delay(1500);
   oscar.Stop();
-  delay(100);
-  /*
-   * PICK UP CHEST HERE RILEY
-   * 
-   */
+  delay(5000);
+
+//  pick up chest
 //  digitalWrite(armTrinket, HIGH);
 //  delay(100);
 //  pinMode(armTrinket, INPUT);
 //  while(digitalRead(armTrinket) == HIGH);
-  
-  oscar.DriveBackward(RampTime);
-  delay(7000);
+
+//  drive to and up ramp
+  oscar.DriveBackward(100);
+  delay(BackRampTime);
   oscar.Stop();
-  oscar.DriveForward(Adjust);
+  oscar.DriveForward(testSpeed);
+  delay(Adjust);
   oscar.Stop();
-  
+
+//  Desination C
   if(treasureMap[2] == 1){
   oscar.StrafeLeft(testSpeed);
   delay(ACTime);
@@ -250,100 +230,10 @@ bool wallFound = false;
   delay(ACTime);
   oscar.Stop();
   }
-
-//  bool wallFound = false;
-//  while(!wallFound) {
-//    // read back short sensors
-//    if(treasureMap[1] == 1) {
-//      oscar.StrafeRight(testSpeed);
-//    } else {
-//      oscar.StrafeLeft(testSpeed);
-//    }
-//    I2CSelect(1,1);
-//    double mastRead = ReadShort(); 
-//    I2CSelect(1,-1);
-//    if(mastRead < 150) {
-//      wallFound = true;
-//    }
-//    delay(5);
-//  }
-//
-//  // centering on wheel
-//  if(treasureMap[1] == 1) {
-//      oscar.StrafeRight(testSpeed);
-//      delay(200);
-//  } else {
-//      oscar.StrafeLeft(testSpeed);
-//      delay(150);
-//  }
-//  oscar.Stop();
-  // perform 
-
-
-  
   while(1);
-  delay(10);
 }
 
-//  
-//  // read back short sensors
-//  I2CSelect(1,1);
-//  double backLeftShort = ReadShort(); // FIXME: 5 is ~error
-//  I2CSelect(1,-1);
-//  
-//  I2CSelect(2,1);
-//  double backRightShort = ReadShort() + 12;
-//  I2CSelect(2,-1);
-//
-//  double backLeftShortFiltered = throughFilter1(backLeftShort);
-//  double backRightShortFiltered = throughFilter2(backRightShort);
-//
-//  Serial.println(backLeftShortFiltered);
-//  Serial.println(backRightShortFiltered);
-//  delay(1000);
-//  // threshold: 8 mm
-//  int parallel = isParallel(backLeftShortFiltered, backRightShortFiltered, 10);
-//  
-//  // desired: 120 mm, threshold: 8 mm
-//  int spacing = hasSpacing(backLeftShortFiltered, 120, 30);
-//  
-//   if(parallel == tooLeft) {
-//    oscar.TurnLeft(testSpeed);
-//    Serial.println("turnLeft");
-//    return;
-//  }
-//  if(parallel == tooRight) {
-//    oscar.TurnRight(testSpeed);
-//        Serial.println("turnRight");
-//
-//    return;
-//  }
-//  // else parallel to wall
-//  if(spacing  == tooClose) {
-//    oscar.DriveForward(testSpeed);
-//        Serial.println("forward");
-//
-//    return;
-//  } 
-//  if(spacing == tooFar) {
-//    oscar.DriveBackward(testSpeed);
-//        Serial.println("backward");
-//
-//    return;
-//  } 
-//  
-//  // else parallel and well-spaced to back wall but button not hit
-//  if(treasureMap[0] == 0) {
-//    oscar.StrafeLeft(testSpeed);
-//        Serial.println("move left");
-//
-//  } else {
-//    oscar.StrafeRight(testSpeed);
-//        Serial.println("move right");
-//
-//  }
-//
-//}
+
 
 void centerOnRamp() {
   /*STAY PARALLEL AND WELL SPACED TO BACK WALL*/
