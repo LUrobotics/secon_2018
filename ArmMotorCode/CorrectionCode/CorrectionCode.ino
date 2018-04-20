@@ -22,10 +22,10 @@ void loop() {
   // put your main code here, to run repeatedly:
 
 
-  armReverse(10);
+  armReverse(100);
 
 
-  delay(10000); // keep trinket from resetting
+  delay(3000); // keep trinket from resetting
   
 }
 

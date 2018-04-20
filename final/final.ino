@@ -2,13 +2,13 @@
  * Robotics Final Integration Code
  */
  
-//#include <IRLibDecodeBase.h> 
-//#include <IRLib_HashRaw.h>  //Must be last protocol
-//#include <IRLibCombo.h>     // After all protocols, include this
-//#include <IRLibRecv.h> 
+#include <IRLibDecodeBase.h> 
+#include <IRLib_HashRaw.h>  //Must be last protocol
+#include <IRLibCombo.h>     // After all protocols, include this
+#include <IRLibRecvLoop.h> 
 #include <Wire.h>
-//#include <Adafruit_GFX.h>
-//#include "Adafruit_LEDBackpack.h"
+#include <Adafruit_GFX.h>
+#include "Adafruit_LEDBackpack.h"
 #include "Adafruit_VL53L0X.h" // https://learn.adafruit.com/adafruit-vl53l0x-micro-lidar-distance-sensor-breakout/arduino-code
 #include "Adafruit_VL6180X.h" // https://learn.adafruit.com/adafruit-vl6180x-time-of-flight-micro-lidar-distance-sensor-breakout/wiring-and-test
 #include <Motors.h>
@@ -34,12 +34,12 @@ const int startButton = A5;
 bool startProgram = false;
 
 /* IR & 7 SEG STUFF */
-//const int irRecvPin = A4;
-//IRdecode myDecoder;
-//IRrecv myReceiver(irRecvPin);
-//int sevSegDisplayNumber = 0;
-//bool calibrationSignal = true;
-//Adafruit_7segment matrix = Adafruit_7segment();
+const int irRecvPin = A4;
+IRdecode myDecoder;
+IRrecv myReceiver(irRecvPin);
+int sevSegDisplayNumber = 0;
+bool calibrationSignal = true;
+Adafruit_7segment matrix = Adafruit_7segment();
 
 /* NAV STUFF */
 int phase = 1;
@@ -57,15 +57,15 @@ Motors oscar = Motors();
 
 void setup() {
   Serial.begin(9600);
-  while(!Serial);
+//  while(!Serial);
   Serial.println("Waiting to start");
   // initialize start and kill buttons
   pinMode(killButton, INPUT_PULLUP); // pin = HIGH when switch open and LOW when switch is pressed
   pinMode(startButton, INPUT_PULLUP);
   
-  /*
+  
   // kill button interrupt
-  attachInterrupt(digitalPinToInterrupt(killButton), killFunction, FALLING);
+//  attachInterrupt(digitalPinToInterrupt(killButton), killFunction, FALLING);
   // IR Receiver
   Serial.println("Enabling IRin");
   myReceiver.enableIRIn(); // Start the receiver
@@ -76,41 +76,44 @@ void setup() {
   matrix.blinkRate(2);
   matrix.drawColon(true);
   matrix.writeDisplay();
-*/
+
   setupLidar(); 
   
 }
 
 void loop() {
 
-  while(true) {
-    lidarReadings();
-  }
+//  while(true) {
+//    lidarReadings();
+//  }
   //rileyMaps();
 
+  readIRSensor();
+  myReceiver.disableIRIn();
+  
   treasureMap[0] = 1;
 
 
 
   // HARDCODED
-//  oscar.StrafeRight(testSpeed);
-//  delay(9000);
-//  oscar.StrafeLeft(testSpeed);
-//  delay(9000);
-//  oscar.DriveBackward(testSpeed);
-//  delay(11000);
-//  oscar.StrafeRight(testSpeed);
-//  delay(9000);
-//  oscar.StrafeLeft(testSpeed);
-//  delay(1000);
-//  oscar.DriveBackward(testSpeed);
-//  delay(8000);
-//  oscar.StrafeLeft(testSpeed);
-//  delay(9000);
-//  oscar.DriveForward(255);
-//  delay(22000);
-//  oscar.StrafeRight(testSpeed);
-//  delay(9000);
+  oscar.StrafeRight(testSpeed);
+  delay(9000);
+  oscar.StrafeLeft(testSpeed);
+  delay(9000);
+  oscar.DriveBackward(testSpeed);
+  delay(11000);
+  oscar.StrafeRight(testSpeed);
+  delay(9000);
+  oscar.StrafeLeft(testSpeed);
+  delay(1000);
+  oscar.DriveBackward(testSpeed);
+  delay(8000);
+  oscar.StrafeLeft(testSpeed);
+  delay(9000);
+  oscar.DriveForward(255);
+  delay(22000);
+  oscar.StrafeRight(testSpeed);
+  delay(9000);
 
 /* TESTS:
  *  detect floor with one sensor
@@ -415,103 +418,104 @@ int isCentered(int ID1, int ID2, float threshold) {
   return good;
 }
 
-//void readIRSensor() {
-//  unsigned long irCode;
-//  if (myReceiver.getResults()) {
-//    myDecoder.decode();
-//    irCode = myDecoder.value;
-//    Serial.println(irCode, HEX);
-//    // receiving route signal
-//    if (!calibrationSignal)
-//    {
-//      switch(irCode) {
-//        case(0X1AF66ED4):
-//          sevSegDisplayNumber = 1;
-//          treasureMap[0] = 0;
-//          treasureMap[1] = 0;
-//          treasureMap[2] = 0;
-//          break;
-//        case(0X17F66A1D):
-//          sevSegDisplayNumber = 2;
-//          treasureMap[0] = 1;
-//          treasureMap[1] = 0;
-//          treasureMap[2] = 0;
-//          break;
-//        case(0XA4E2155E):
-//          sevSegDisplayNumber = 3;
-//          treasureMap[0] = 0;
-//          treasureMap[1] = 1;
-//          treasureMap[2] = 0;
-//          break;
-//        case(0XA3E213CD):
-//          sevSegDisplayNumber = 4;
-//          treasureMap[0] = 1;
-//          treasureMap[1] = 1;
-//          treasureMap[2] = 0;
-//          break;
-//        case(0XA8726262):
-//          sevSegDisplayNumber = 5;
-//          treasureMap[0] = 0;
-//          treasureMap[1] = 0;
-//          treasureMap[2] = 1;
-//          break;
-//        case(0XA97263F7):
-//          sevSegDisplayNumber = 6;
-//          treasureMap[0] = 1;
-//          treasureMap[1] = 0;
-//          treasureMap[2] = 1;
-//          break;
-//        case(0XB490A256):
-//          sevSegDisplayNumber = 7;
-//          treasureMap[0] = 0;
-//          treasureMap[1] = 1;
-//          treasureMap[2] = 1;
-//          break;
-//        case(0XB390A0C5):
-//          sevSegDisplayNumber = 8;
-//          treasureMap[0] = 1;
-//          treasureMap[1] = 1;
-//          treasureMap[2] = 1;
-//          break;
-//      }
-//      // write route to 7-segment display
-//      matrix.writeDigitRaw(3, 0B000000000);
-//      matrix.blinkRate(0);
-//      matrix.drawColon(false);
-//      matrix.writeDigitNum(4, sevSegDisplayNumber, true);
-//      matrix.writeDisplay();
-//    }
-//    // receiving calibration signal
-//    else {
-//      if(irCode == 0X1AF66ED4) {
-//        sevSegDisplayNumber = 0;  
-//        // write GO to 7-segment display
-//        matrix.blinkRate(0);
-//        matrix.drawColon(false);
-//        matrix.writeDigitRaw(3, 0B000111101);
-//        matrix.writeDigitNum(4, 0, false);
-//        matrix.writeDisplay();
-//      }
-//      else {
-//        sevSegDisplayNumber = 9; //arbitrary value  
-//      }
-//    }
-//    Serial.println(sevSegDisplayNumber);
-//    myReceiver.enableIRIn(); // Receive the next value 
-//  }
-//  delay(100);
-//}
-//
-//// called when kill button is pressed
-//void killFunction() {
-//  //stop moving
-//  //stop motors
-//  Serial.println("Kill button pressed");
-//  matrix.writeDigitNum(4, 1, false);
-//  matrix.writeDisplay();
-//  // do nothing forever 
-//  while(1);
-//}
+void readIRSensor() {
+  unsigned long irCode;
+  if (myReceiver.getResults()) {
+    myDecoder.decode();
+    irCode = myDecoder.value;
+    Serial.println(irCode, HEX);
+    // receiving route signal
+    if (!calibrationSignal)
+    {
+      switch(irCode) {
+        case(0X1AF66ED4):
+          sevSegDisplayNumber = 1;
+          treasureMap[0] = 0;
+          treasureMap[1] = 0;
+          treasureMap[2] = 0;
+          break;
+        case(0X17F66A1D):
+          sevSegDisplayNumber = 2;
+          treasureMap[0] = 1;
+          treasureMap[1] = 0;
+          treasureMap[2] = 0;
+          break;
+        case(0XA4E2155E):
+          sevSegDisplayNumber = 3;
+          treasureMap[0] = 0;
+          treasureMap[1] = 1;
+          treasureMap[2] = 0;
+          break;
+        case(0XA3E213CD):
+          sevSegDisplayNumber = 4;
+          treasureMap[0] = 1;
+          treasureMap[1] = 1;
+          treasureMap[2] = 0;
+          break;
+        case(0XA8726262):
+          sevSegDisplayNumber = 5;
+          treasureMap[0] = 0;
+          treasureMap[1] = 0;
+          treasureMap[2] = 1;
+          break;
+        case(0XA97263F7):
+          sevSegDisplayNumber = 6;
+          treasureMap[0] = 1;
+          treasureMap[1] = 0;
+          treasureMap[2] = 1;
+          break;
+        case(0XB490A256):
+          sevSegDisplayNumber = 7;
+          treasureMap[0] = 0;
+          treasureMap[1] = 1;
+          treasureMap[2] = 1;
+          break;
+        case(0XB390A0C5):
+          sevSegDisplayNumber = 8;
+          treasureMap[0] = 1;
+          treasureMap[1] = 1;
+          treasureMap[2] = 1;
+          break;
+      }
+      // write route to 7-segment display
+      matrix.writeDigitRaw(3, 0B000000000);
+      matrix.blinkRate(0);
+      matrix.drawColon(false);
+      matrix.writeDigitNum(4, sevSegDisplayNumber, true);
+      matrix.writeDisplay();
+    }
+    // receiving calibration signal
+    else {
+      if(irCode == 0X1AF66ED4) {
+        sevSegDisplayNumber = 0;  
+        // write GO to 7-segment display
+        matrix.blinkRate(0);
+        matrix.drawColon(false);
+        matrix.writeDigitRaw(3, 0B000111101);
+        matrix.writeDigitNum(4, 0, false);
+        matrix.writeDisplay();
+      }
+      else {
+        sevSegDisplayNumber = 9; //arbitrary value  
+      }
+    }
+    Serial.println(sevSegDisplayNumber);
+    myReceiver.enableIRIn(); // Receive the next value 
+  }
+  delay(100);
+  
+}
+
+// called when kill button is pressed
+void killFunction() {
+  //stop moving
+  //stop motors
+  Serial.println("Kill button pressed");
+  matrix.writeDigitNum(4, 1, false);
+  matrix.writeDisplay();
+  // do nothing forever 
+  while(1);
+}
 
 void setupLidar(){
 

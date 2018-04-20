@@ -20,7 +20,7 @@
 
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
-const int startButton = A5;
+const int startButton = 5;
 bool startProgram = false;
 
 /* IR & 7 SEG STUFF */
@@ -34,6 +34,13 @@ Motors oscar = Motors();
 int phase = 1;
 double sensors[14];
 int treasureMap[] = {-1, -1, -1};
+
+double filter1[] = {0.0, 0.0, 0.0};
+double filter2[] = {0.0, 0.0, 0.0};
+double filter3[] = {0.0, 0.0, 0.0};
+double filter4[] = {0.0, 0.0, 0.0};
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -79,14 +86,14 @@ void loop() {
   treasureMap[2] = 0;
 
   phase = 1;
-  oscar.StrafeLeft(testSpeed);
-  delay(5000);
-  oscar.StrafeRight(testSpeed);
-  delay(5000);
-  oscar.DriveForward(testSpeed);
-  delay(5000);
-  oscar.Stop();
-  while(1);
+//  oscar.StrafeLeft(testSpeed);
+//  delay(5000);
+//  oscar.StrafeRight(testSpeed);
+//  delay(5000);
+//  oscar.DriveForward(testSpeed);
+//  delay(5000);
+//  oscar.Stop();
+//  while(1);
 //  oscar.TurnRight(testSpeed); // clockwise
 //  oscar.TurnLeft(testSpeed);  // counter
 
@@ -107,7 +114,7 @@ void loop() {
     }
 
     // FIXME: lazy 
-    delay(200);
+    delay(10);
   }
 
 //  if(phase == 1) {
@@ -154,26 +161,32 @@ void toDestinationA() {
   
   // read back short sensors
   I2CSelect(1,0);
-  double backLeftShort = ReadShort() + 5;
+  double backLeftShort = ReadShort(); // FIXME: 5 is ~error
   I2CSelect(1,-1);
   
   I2CSelect(2,1);
-  double backRightShort = ReadShort();
+  double backRightShort = ReadShort() + 12;
   I2CSelect(2,-1);
-  
+
+  double backLeftShortFiltered = throughFilter1(backLeftShort);
+  double backRightShortFiltered = throughFilter2(backRightShort);
+
+  Serial.println(backLeftShortFiltered);
+  Serial.println(backRightShortFiltered);
+  delay(1000);
   // threshold: 8 mm
-  int parallel = isParallel(backLeftShort, backRightShort, 50);
+  int parallel = isParallel(backLeftShortFiltered, backRightShortFiltered, 10);
   
   // desired: 120 mm, threshold: 8 mm
-  int spacing = hasSpacing(backLeftShort, 120, 50);
+  int spacing = hasSpacing(backLeftShortFiltered, 120, 30);
   
    if(parallel == tooLeft) {
-    oscar.TurnRight(testSpeed);
+    oscar.TurnLeft(testSpeed);
     Serial.println("turnLeft");
     return;
   }
   if(parallel == tooRight) {
-    oscar.TurnLeft(testSpeed);
+    oscar.TurnRight(testSpeed);
         Serial.println("turnRight");
 
     return;
@@ -389,4 +402,18 @@ void killFunction() {
   Serial.println("Kill button pressed"); 
   // do nothing forever 
   while(1);
+}
+
+double throughFilter1(double measurement) {
+  filter1[0] = filter1[1];
+  filter1[1] = filter1[2];
+  filter1[2] = measurement;
+  return (filter1[0] + filter1[1] + filter1[2]) / 3.0;
+}
+
+double throughFilter2(double measurement) {
+  filter2[0] = filter2[1];
+  filter2[1] = filter2[2];
+  filter2[2] = measurement;
+  return (filter2[0] + filter2[1] + filter2[2]) / 3.0;
 }

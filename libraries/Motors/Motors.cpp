@@ -18,7 +18,7 @@
 #include "Motors.h"
 
 #define MFL_DRIVE 12
-#define MFR_DRIVE 10
+#define MFR_DRIVE 5
 #define MBL_DRIVE 13
 #define MBR_DRIVE 11
 #define MFL_DIR A1

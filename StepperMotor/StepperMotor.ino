@@ -28,18 +28,21 @@ int  Steps2Take;
 void setup()   /*----( SETUP: RUNS ONCE )----*/
 {
 // Nothing  (Stepper Library sets pins as outputs)
+  delay(15000);
   pinMode(INTERRUPT, INPUT);
+  digitalWrite(INTERRUPT, HIGH);
 }/*--(end setup )---*/
 
 void loop()   /*----( LOOP: RUNS CONSTANTLY )----*/
 {
-//  if(digitalRead(INTERRUPT) == false && hasWheelTurned == true){
+  if(digitalRead(INTERRUPT) == LOW && hasWheelTurned == false){
     small_stepper.setSpeed(1000);   // SLOWLY Show the 4 step sequence 
-    Steps2Take  =  5.125*STEPS_PER_OUTPUT_REVOLUTION;  // Rotate CW
+    Steps2Take  =  5*STEPS_PER_OUTPUT_REVOLUTION;  // Rotate CW
     small_stepper.step(Steps2Take);
-//  }
+    hasWheelTurned = true;
+  }
 
-  delay(10000);
+//  delay(10000);
   
 }/* --(end main loop )-- */
 

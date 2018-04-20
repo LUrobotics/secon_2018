@@ -30,7 +30,7 @@ LidarHub::LidarHub(){
   I2CSelect(3, OFF);
 }
 
-bool LidarHub::I2I2CSelect(int mux, int8_t sensorNum){
+bool LidarHub::I2CSelect(int mux, int8_t sensorNum){
   if (sensorNum > 5) return false;
 
   if(mux == 1){
@@ -96,7 +96,7 @@ float LidarHub::ReadShort(){
 float LidarHub::ReadLong(){
   VL53L0X_RangingMeasurementData_t measure;
   longRange.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
-  
+
   if(Serial){
     if (measure.RangeStatus != 4) {  // phase failures have incorrect data
       Serial.print("Distance (mm): "); Serial.println(measure.RangeMilliMeter);

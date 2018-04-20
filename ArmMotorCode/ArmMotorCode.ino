@@ -9,13 +9,8 @@ void setup() {
   pinMode(FORWARDHIGH, OUTPUT);
   pinMode(REVERSEHIGH, OUTPUT);
   pinMode(INTERRUPT, INPUT);
-  pinMode(SWITCH, INPUT);
-  digitalWrite(SWITCH, HIGH);
-
-  Serial.begin(9600);
-  while(!Serial);
-  Serial.println("Code started");
-  
+  digitalWrite(INTERRUPT, HIGH);
+delay(3000);
 }
 
 void loop() {
@@ -23,24 +18,18 @@ void loop() {
 
   // motor power connected to out1
   // motor ground connected to out2
-//  while(digitalRead(SWITCH) != LOW){
-//    armReverse(50);
-//  }
-  // check to see if time to move the arm
-//  if (digitalRead(INTERRUPT) == LOW && hasArmMoved == false){
-  // moves arm forward / lowers arm
-  if(digitalRead(SWITCH) == LOW){
-    Serial.println("Switch Pressed");
-//    armForward(100);
-  }
-//  armForward(100);
+      if(digitalRead(INTERRUPT) == LOW && hasArmMoved == false){
+        armForward(2000);
+        delay(500);
+        armReverse(2100);
+        hasArmMoved = true;
+       }
+      delay(10);
 
-  // moves arm back / lifts arm 
-//  armReverse(500);
-//  hasArmMoved = true;
-//  }
-
-//  delay(20000); // keep trinket from resetting
+//      armForward(1500);
+//      delay(2000);
+//      armReverse(1500);
+//      delay(20000); // keep trinket from resetting
   
 }
 

@@ -18,5 +18,7 @@ void loop(){
   delay(1000);
   oscar.StrafeLeft(testSpeed);
   delay(1000);
+  oscar.Stop();
+  while(1);
 }
 
