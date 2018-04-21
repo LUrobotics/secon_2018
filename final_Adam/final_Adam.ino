@@ -3,7 +3,11 @@
 /*
  * Robotics Final Integration Code
  */
- 
+
+#include <IRLibDecodeBase.h> 
+#include <IRLib_HashRaw.h>  //Must be last protocol
+#include <IRLibCombo.h>     // After all protocols, include this
+#include <IRLibRecvLoop.h> 
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
@@ -22,13 +26,14 @@
 #define ACTime        3000
 #define RampTime      5000
 
-
 #define BTime         2500
 #define Adjust        500
 #define BackWallTime  5000
 #define Backward      1000
 #define ChestTime     1500
-#define BackRampTime  9000
+#define BackRampTime  7800
+#define IN1           0
+#define IN2           MISO
 
 /* START & KILL BUTTON STUFF */
 const int killButton = SCK;
@@ -36,13 +41,15 @@ const int startButton = A5;
 bool startProgram = false;
 
 /* IR & 7 SEG STUFF */
+const int irRecvPin = A4;
+IRdecode myDecoder;
+IRrecvLoop myReceiver(irRecvPin);
 int sevSegDisplayNumber = 0;
 bool calibrationSignal = true;
 Adafruit_7segment matrix = Adafruit_7segment();
 
 /* CAPTAIN'S WHEEL AND ARM TRINKETS' ENABLE PINS */
 const int capWheelTrinket = 6;
-const int armTrinket = MOSI;
 
 Motors oscar = Motors();
 
@@ -56,57 +63,73 @@ double filter2[] = {0.0, 0.0, 0.0};
 double filter3[] = {0.0, 0.0, 0.0};
 double filter4[] = {0.0, 0.0, 0.0};
 
-
-
 void setup() {
   Serial.begin(9600);
-//  Serial.println("Waiting to start");
+  //while(!Serial);
+  //Serial.println("Waiting to start");
+  
   // initialize start and kill buttons
   pinMode(killButton, INPUT_PULLUP); // pin = HIGH when switch open and LOW when switch is pressed
   pinMode(startButton, INPUT_PULLUP);
-  pinMode(capWheelTrinket, OUTPUT);
-  digitalWrite(capWheelTrinket, LOW);
-  pinMode(armTrinket, OUTPUT);
-  digitalWrite(armTrinket, LOW);
+  
+  // arm pins
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  
   // kill button interrupt
-  //attachInterrupt(digitalPinToInterrupt(killButton), killFunction, FALLING);
+  attachInterrupt(digitalPinToInterrupt(killButton), killFunction, FALLING);
+  // start button interrupt: sets flag to start program
+  attachInterrupt(digitalPinToInterrupt(startButton), startFunction, FALLING);
+  
+  // IR Receiver
+  Serial.println("Enabling IRin");
+  myReceiver.enableIRIn(); // Start the receiver
+  Serial.println("Enabled IRin");
+  
+  // I2C setup for 7-segment display
+  matrix.begin(0x70);
+  // blink colon on 7-segment display until signal received
+  matrix.blinkRate(2);
+  matrix.drawColon(true);
+  matrix.writeDisplay();
+  
+  // make captain's wheel interrupt pin an output
+  pinMode(capWheelTrinket, OUTPUT);
+  digitalWrite(capWheelTrinket, HIGH); // set it high just to be sure
   Wire.begin();
 
-//  // I2C setup for 7-segment display
-//  matrix.begin(0x70);
-//  // blink colon on 7-segment display until signal received
-//  matrix.blinkRate(2);
-//  matrix.drawColon(true);
-//  matrix.writeDisplay();
-//
   muxInit(1);
   muxInit(2);
   muxInit(3);
 }
 
 void loop() {
-//  // wait until start button is pressed
-//  while (digitalRead(startButton) == HIGH) {
-//    // receive calibration IR signal
-//    readIRSensor();
-//  }
-//  /* ENTER PROGRAM */
-//  
-//  // Riley
-//  calibrationSignal = false;
-//  readIRSensor();
+  // wait until start button is pressed
+  // it will only go through main loop once with this scheme
+  while (!startProgram)
+  {
+    // receive calibration IR signal
+    readIRSensor();
+    Serial.println("waiting");
+  }
 
-  // perform every 50 ms
-//  if(!is50ms()) {
-//    return;
-//  }
-
-  treasureMap[0] = 1;
-  treasureMap[1] = 1;
-  treasureMap[2] = 0;
+  Serial.println("exited loop");
+  
+  // Serial.println("Start");
+  
+  /* ENTER PROGRAM */
+  
+  // Riley
+  calibrationSignal = false;
+  readIRSensor();
   
 
-  // END WALL PRACTICE
+  // comment out for IR
+  // treasureMap[0] = 1;
+  // treasureMap[1] = 1;
+  // treasureMap[2] = 1; 
 
 
   //Destination A and recenter
@@ -174,263 +197,188 @@ void loop() {
   // centering on wheel
   if(treasureMap[1] == 1) {
       oscar.StrafeLeft(testSpeed);
-      delay(1500);
+      delay(1800);
       oscar.StrafeRight(testSpeed);
-      delay(ACTime-100);
+      delay(ACTime-175);
   } else {
       oscar.StrafeRight(testSpeed);
-      delay(1500);
+      delay(1800);
       oscar.StrafeLeft(testSpeed);
-      delay(ACTime-100);
+      delay(ACTime-175);
       }
   oscar.Stop();
   delay(100);
   oscar.DriveForward(testSpeed);
-  delay(400);
+  delay(250);
   oscar.Stop();
-  delay(5000);
+  delay(500);
 
-//  turn the wheel
-//  digitalWrite(capWheelTrinket, HIGH);
-//  delay(100);
-//  pinMode(capWheelTrinket, INPUT);
-//  delay(100);
-//  while(digitalRead(capWheelTrinket) == HIGH);
-
-// END WHEEL TURN
+  // turn captain's wheel and lower arm slightly
+  digitalWrite(capWheelTrinket, LOW);
+  digitalWrite(IN1, HIGH);
+  delay(1500);
+  digitalWrite(IN1, LOW);
+  delay(18500); // delay for captain's wheel to turn
 
   // drive to chest
   oscar.DriveBackward(testSpeed);
   delay(1500);
   oscar.Stop();
-  delay(5000);
+  delay(100);
 
-//  pick up chest
-//  digitalWrite(armTrinket, HIGH);
-//  delay(100);
-//  pinMode(armTrinket, INPUT);
-//  while(digitalRead(armTrinket) == HIGH);
-
-//  drive to and up ramp
+  // pick up chest
+  digitalWrite(IN1, HIGH);
+  delay(200);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
   oscar.DriveBackward(100);
-  delay(BackRampTime);
+  delay(1900);
+  digitalWrite(IN2, LOW);
+  oscar.DriveBackward(100);
+  delay(BackRampTime-2100);
   oscar.Stop();
+
+  // drive to and up ramp
   oscar.DriveForward(testSpeed);
   delay(Adjust);
   oscar.Stop();
 
-//  Desination C
+  // add in to strafe left slightly before going up ramp
+//  oscar.DriveBackward(100);
+//  delay(BackRampTime/2);
+//  oscar.Stop();
+//  oscar.StrafeRight(testSpeed);
+//  delay(30
+//  oscar.Stop();
+//  oscar.DriveBackward(100);
+//  delay(BackRampTime/2);
+//  oscar.Stop();
+//  oscar.DriveBackward(100);
+//  delay(BackRampTime);
+//  oscar.Stop();
+ 
+  // Desination C
   if(treasureMap[2] == 1){
   oscar.StrafeLeft(testSpeed);
-  delay(ACTime);
+  delay(ACTime+500);
   oscar.Stop();
   }
   else{
   oscar.StrafeRight(testSpeed);
-  delay(ACTime);
+  delay(ACTime+500);
   oscar.Stop();
   }
   while(1);
 }
 
-
-
-void centerOnRamp() {
-  /*STAY PARALLEL AND WELL SPACED TO BACK WALL*/
-  // read back short sensors
-  I2CSelect(1,0);
-  double backLeftShort = ReadShort();
-  I2CSelect(1,-1);
-  
-  I2CSelect(2,1);
-  double backRightShort = ReadShort();
-  I2CSelect(2,-1);
-
-  // threshold: 8 mm
-  int parallel = isParallel(backLeftShort, backRightShort, 8);
-  
-  // desired: 120 mm, threshold: 8 mm
-  int spacing = hasSpacing(backLeftShort, 120, 8);
-  
-   if(parallel == tooLeft) {
-    oscar.TurnRight(testSpeed);
-    return;
+// call to read IR sensor
+void readIRSensor() {
+  unsigned long irCode;
+  if (myReceiver.getResults()) {
+    myDecoder.decode();
+    irCode = myDecoder.value;
+    Serial.println(irCode, HEX);
+    // receiving route signal
+    if (!calibrationSignal)
+    {
+      switch(irCode) {
+        case(0X1AF66ED4):
+          sevSegDisplayNumber = 1;
+          treasureMap[0] = 0;
+          treasureMap[1] = 0;
+          treasureMap[2] = 0;
+          break;
+        case(0X17F66A1D):
+          sevSegDisplayNumber = 2;
+          treasureMap[0] = 0;
+          treasureMap[1] = 0;
+          treasureMap[2] = 1;
+          break;
+        case(0XA4E2155E):
+          sevSegDisplayNumber = 3;
+          treasureMap[0] = 0;
+          treasureMap[1] = 1;
+          treasureMap[2] = 0;
+          break;
+        case(0XA3E213CD):
+          sevSegDisplayNumber = 4;
+          treasureMap[0] = 0;
+          treasureMap[1] = 1;
+          treasureMap[2] = 1;
+          break;
+        case(0XA8726262):
+          sevSegDisplayNumber = 5;
+          treasureMap[0] = 1;
+          treasureMap[1] = 0;
+          treasureMap[2] = 0;
+          break;
+        case(0XA97263F7):
+          sevSegDisplayNumber = 6;
+          treasureMap[0] = 1;
+          treasureMap[1] = 0;
+          treasureMap[2] = 1;
+          break;
+        case(0XB490A256):
+          sevSegDisplayNumber = 7;
+          treasureMap[0] = 1;
+          treasureMap[1] = 1;
+          treasureMap[2] = 0;
+          break;
+        case(0XB390A0C5):
+          sevSegDisplayNumber = 8;
+          treasureMap[0] = 1;
+          treasureMap[1] = 1;
+          treasureMap[2] = 1;
+          break;
+        default:
+          sevSegDisplayNumber = 9;
+          // arbitrary values
+          treasureMap[0] = 1;
+          treasureMap[1] = 1;
+          treasureMap[2] = 1;
+      }
+      // write route to 7-segment display
+      matrix.writeDigitRaw(3, 0B000000000);
+      matrix.blinkRate(0);
+      matrix.drawColon(false);
+      matrix.writeDigitNum(4, sevSegDisplayNumber, true);
+      matrix.writeDisplay();
+    }
+    // receiving calibration signal
+    else {
+      if(irCode == 0X1AF66ED4) {
+        sevSegDisplayNumber = 0;  
+        // write GO to 7-segment display
+        matrix.blinkRate(0);
+        matrix.drawColon(false);
+        matrix.writeDigitRaw(3, 0B000111101);
+        matrix.writeDigitNum(4, 0, false);
+        matrix.writeDisplay();
+      }
+      else {
+        sevSegDisplayNumber = 9; //arbitrary value  
+      }
+    }
+    Serial.println(sevSegDisplayNumber);
+    myReceiver.enableIRIn(); // Receive the next value 
   }
-  if(parallel == tooRight) {
-    oscar.TurnLeft(testSpeed);
-    return;
-  }
-  // else parallel to wall
-  if(spacing  == tooClose) {
-    oscar.DriveForward(testSpeed);
-    return;
-  } 
-  if(spacing == tooFar) {
-    oscar.DriveBackward(testSpeed);
-    return;
-  } 
-
-  /*CENTER BETWEEN SIDE YELLOW WALLS*/
-  // read left side and right side far sensors
-  I2CSelect(2,0);
-  double leftFar = ReadLong();
-  I2CSelect(2,-1);
-  
-  I2CSelect(1,4);
-  double rightFar = ReadLong();
-  I2CSelect(1,-1);
-
-  // 8 mm away from center
-  int centered = isCentered(leftFar, rightFar, 8);
-
-  if(centered  == tooLeft) {
-    oscar.StrafeRight(testSpeed);
-    return;
-  } 
-  if(centered == tooRight) {
-    oscar.StrafeLeft(testSpeed);
-    return;
-  } 
-
-  // else centered and ready to approach ramp
-  phase++;
+  delay(100);
 }
 
-void downRampBlind() {
-  /* FORWARD UNTIL WE SEE CHEST -- however we (likely) see floor due to ramp angle*/
-  // FIXME: lazy
-  oscar.DriveForward(testSpeed);
-  delay(5000);
-  phase++;
-}
-
-void seeChest() {
-  oscar.DriveForward(testSpeed);
-}
-
-void toPressureWall() {
-  
-}
-
-void seePressurePlate() {
-  
-}
-
-//void downRamp() {
-//
-//  // ID1: back close L, ID2: back close R, threshold: 8 mm
-//  int parallel = isParallel(4, 5, 8);
-//
-//  // still close to back wall?
-//  if(sensors[4] < 200 && sensors[5] < 200) {
-//    if(parallel == tooCounter) {
-//      rotateClock();
-//      return;
-//    }
-//    if(parallel == tooClock) {
-//      rotateCounter();
-//      return;
-//    }
-//    // else parallel too back wall 
-//    moveForward();
-//    return;
-//  }
-//  // else really close to ramp or on ramp
-//  // cannot check back wall due to angle of robot
-//  
-//  // now read floor sensors
-//  // ID1: floor L, ID2: floor R, threshold: 8 mm
-//  parallel = isParallel(0, 1, 8);
-//
-//  // ID: floor L, desired: 100 mm, threshold: 25 mm
-//  int spacingL = hasSpacing(0, 100, 25);
-//
-//  if(spacingL == tooFar) {
-//    rotateClock();
-//    return;
-//  }
-//  
-//  // ID: floor R, desired: 100 mm, threshold: 25 mm
-//  int spacingR = hasSpacing(1, 100, 25);
-//  if(spacingR == tooFar) {
-//    rotateCounter();
-//    return;
-//  }
-//  
-//  // else on solid ground 
-//
-//  // are we close to chest?
-//  // ID: front close, desired: 80 mm, threshold: 30 mm
-//  int spacingF = hasSpacing(7, 80, 30);
-//  if(spacingF == tooClose) {
-//    phase++;
-//    return;
-//  }
-//
-//  // else on solid ground but not close enough to chest
-//  moveForward();
-//}
-//
-//// INSERT: other phase functions
-//
-int hasSpacing(double reading, float desired, float threshold) {
-
-  float diff = reading - desired;
-
-  if(diff > threshold) {
-    return tooFar;
-  }
-  if(diff < -threshold) {
-    return tooClose;
-  }
-  return good;
-}
-
-int isParallel(double left, double right, float threshold) {
-
-  float diff = left - right;
-
-  if(diff > threshold) {
-    return tooLeft;
-  }
-  if(diff < -threshold) {
-    return tooRight;
-  }
-  return good;
-}
-
-int isCentered(double left, double right, float threshold) {
-  // same as isParallel just meant to match sensors on opposite sides of robot
-  float diff = left - right;
-
-  if(diff > threshold) {
-    return tooLeft;
-  }
-  if(diff < -threshold) {
-    return tooRight;
-  }
-  return good;
+// called when start button is pressed
+void startFunction() {
+  Serial.println("start button pressed");
+  startProgram = true; 
 }
 
 // called when kill button is pressed
 void killFunction() {
   //stop moving
+  oscar.Stop();
   //stop motors
   Serial.println("Kill button pressed"); 
   // do nothing forever 
   while(1);
 }
 
-double throughFilter1(double measurement) {
-  filter1[0] = filter1[1];
-  filter1[1] = filter1[2];
-  filter1[2] = measurement;
-  return (filter1[0] + filter1[1] + filter1[2]) / 3.0;
-}
 
-double throughFilter2(double measurement) {
-  filter2[0] = filter2[1];
-  filter2[1] = filter2[2];
-  filter2[2] = measurement;
-  return (filter2[0] + filter2[1] + filter2[2]) / 3.0;
-}
